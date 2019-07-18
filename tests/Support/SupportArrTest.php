@@ -88,6 +88,45 @@ class SupportArrTest extends TestCase
         $this->assertSame([[]], Arr::crossJoin());
     }
 
+    public function testDiff()
+    {
+        $diff = Arr::diff(
+            ['foo', 'bar', 'baz'],
+            ['baz', 'bar', 'foo']
+        );
+        $this->assertEmpty($diff);
+
+        $diff = Arr::diff(
+            ['foo' => 1, 'bar' => 2,'baz' => 3], 
+            ['baz' => 3, 'bar' => 2, 'foo' => 1]
+        );
+        $this->assertEmpty($diff);
+
+        $diff = Arr::diff(
+            ['foo' => 1, 'bar' => ['baz' => 3]], 
+            ['bar' => ['baz' => 3], 'foo' => 1]
+        );
+        $this->assertEmpty($diff);
+
+        $diff = Arr::diff(
+            ['foo', 'bar', 'baz'],
+            ['baz', 'bar']
+        );
+        $this->assertEquals(['foo'], $diff);
+
+        $diff = Arr::diff(
+            ['foo' => 1, 'bar' => 2,'baz' => 3], 
+            ['baz' => 3, 'bar' => 2]
+        );
+        $this->assertEquals(['foo' => 1], $diff);
+
+        $diff = Arr::diff(
+            ['foo' => ['bar' => ['baz' => 3]]], 
+            ['foo' => 1]
+        );
+        $this->assertTrue(Arr::has($diff, ['foo.bar.baz', 'foo']));
+    }
+
     public function testDivide()
     {
         [$keys, $values] = Arr::divide(['name' => 'Desk']);

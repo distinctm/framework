@@ -89,6 +89,34 @@ class Arr
     }
 
     /**
+     * Returns differences of two indexed, associative or multi-dimensional arrays.
+     * 
+     * Associative and multi-dimensional arrays are returned in "dot" notation.
+     *
+     * @param  array  $array1
+     * @param  array  $array2
+     * @return array
+     */
+    public static function diff($array1, $array2)
+    {
+        if(!static::isAssoc($array1) || !static::isAssoc($array2)) {
+            return array_merge(
+                array_diff($array1, $array2), 
+                array_diff($array2, $array1)
+            );
+        }
+
+        list($array1, $array2) = array_map(function($array){
+            return Arr::dot($array);
+        }, [$array1, $array2]);
+
+        return array_merge(
+            array_diff_assoc($array1, $array2), 
+            array_diff_assoc($array2, $array1)
+        );
+    }
+
+    /**
      * Divide an array into two arrays. One with keys and the other with values.
      *
      * @param  array  $array
