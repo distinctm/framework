@@ -1175,9 +1175,9 @@ trait HasAttributes
             return $this->fromDateTime($current) ===
                    $this->fromDateTime($original);
         } elseif ($this->hasCast($key, 'json')) {
-            return empty(array_diff_assoc(
-                $this->castAttribute($key, $current),
-                $this->castAttribute($key, $original)
+            return empty(Arr::diff(
+                $this->castAttribute($key, $original),
+                $this->castAttribute($key, $current)
             ));
         } elseif ($this->hasCast($key)) {
             return $this->castAttribute($key, $current) ===

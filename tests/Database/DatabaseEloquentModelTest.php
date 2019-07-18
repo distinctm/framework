@@ -92,11 +92,7 @@ class DatabaseEloquentModelTest extends TestCase
         $model->bar = '2017-03-18';
         $model->dateAttribute = '2017-03-18';
         $model->datetimeAttribute = '2017-03-23 22:17:00';
-        $model->jsonAttribute = [
-            'foo' => 1,
-            'bar' => 2,
-            'baz' => 3,
-        ];
+        $model->jsonAttribute = ['foo' => ['baz' => 3], 'bar' => 2];
         $model->syncOriginal();
 
         $model->boolAttribute = true;
@@ -104,11 +100,7 @@ class DatabaseEloquentModelTest extends TestCase
         $model->bar = '2017-03-18 00:00:00';
         $model->dateAttribute = '2017-03-18 00:00:00';
         $model->datetimeAttribute = null;
-        $model->jsonAttribute = [
-            'baz' => 3,
-            'foo' => 1,
-            'bar' => 2,
-        ];
+        $model->jsonAttribute = ['bar' => 2, 'foo' => ['baz' => 3]];
 
         $this->assertTrue($model->isDirty());
         $this->assertTrue($model->isDirty('foo'));
@@ -117,6 +109,23 @@ class DatabaseEloquentModelTest extends TestCase
         $this->assertFalse($model->isDirty('dateAttribute'));
         $this->assertTrue($model->isDirty('datetimeAttribute'));
         $this->assertFalse($model->isDirty('jsonAttribute'));
+    }
+
+    public function testdirtyOnCastJsonAttributes()
+    {
+        $model = new EloquentModelJsonCastingStub;
+        $model->jsonAttributeOne = ['foo', 'bar', 'baz'];
+        $model->jsonAttributeTwo = ['foo', 'bar'];
+        $model->jsonAttributeThree = ['foo' => ['baz' => 3], 'bar' => 2];
+        $model->syncOriginal();
+
+        $model->jsonAttributeOne = ['baz', 'bar', 'foo'];
+        $model->jsonAttributeTwo = ['baz'];
+        $model->jsonAttributeThree = ['bar' => 2, 'foo' => ['baz' => 3], 'baz' => 3];
+
+        $this->assertFalse($model->isDirty('jsonAttributeOne'));
+        $this->assertTrue($model->isDirty('jsonAttributeTwo'));
+        $this->assertTrue($model->isDirty('jsonAttributeThree'));
     }
 
     public function testCleanAttributes()
@@ -2299,6 +2308,15 @@ class EloquentModelCastingStub extends Model
     {
         return $this->attributes['jsonAttribute'];
     }
+}
+
+class EloquentModelJsonCastingStub extends Model
+{
+    protected $casts = [
+        'jsonAttributeOne' => 'json',
+        'jsonAttributeTwo' => 'json',
+        'jsonAttributeThree' => 'json',
+    ];
 }
 
 class EloquentModelDynamicHiddenStub extends Model
